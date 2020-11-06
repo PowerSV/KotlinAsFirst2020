@@ -2,6 +2,7 @@
 
 package lesson3.task1
 
+import lesson1.task1.sqr
 import kotlin.math.max
 import kotlin.math.sqrt
 import kotlin.math.pow
@@ -80,7 +81,7 @@ fun digitNumber(n: Int): Int {
     do {
         count += 1
         number /= 10
-    } while (number > 0)
+    } while (number != 0)
     return count
 }
 
@@ -90,8 +91,22 @@ fun digitNumber(n: Int): Int {
  * Найти число Фибоначчи из ряда 1, 1, 2, 3, 5, 8, 13, 21, ... с номером n.
  * Ряд Фибоначчи определён следующим образом: fib(1) = 1, fib(2) = 1, fib(n+2) = fib(n) + fib(n+1)
  */
-fun fib(n: Int): Int = if (n < 3) 1
-else fib(n - 1) + fib(n - 2)
+fun fib(n: Int): Int {
+    var f1 = 1
+    var f2 = 1
+    var i = 2
+    var f = f1 + f2
+    if (n < 3) return 1
+    else {
+        while (i < n) {
+            f = f1 + f2
+            f1 = f2
+            f2 = f
+            i++
+        }
+    }
+    return f
+}
 
 /**
  * Простая (2 балла)
@@ -189,17 +204,14 @@ fun greatestCommonFactor(m: Int, n: Int): Int {
  * Например, для интервала 21..28 21 <= 5*5 <= 28, а для интервала 51..61 квадрата не существует.
  */
 fun squareBetweenExists(m: Int, n: Int): Boolean {
-    var square = false
     var x: Double
     for (i in m..n) {
-        x = sqrt(i.toDouble()) % 10
-        if (x == 1.0 || x == 2.0 || x == 3.0 || x == 4.0 || x == 5.0 ||
-            x == 6.0 || x == 7.0 || x == 8.0 || x == 9.0 || x == 0.0
-        ) {
-            square = true
+        x = sqrt(i.toDouble()) % 1
+        if (x == 0.0) {
+            return true
         }
     }
-    return square
+    return false
 }
 
 /**
@@ -228,18 +240,7 @@ fun revert(n: Int): Int {
  *
  * Использовать операции со строками в этой задаче запрещается.
  */
-fun isPalindrome(n: Int): Boolean {
-    var a = n
-    var tf = true
-    while (a >= 10) {
-        if (a % 10 != a / 10.0.pow(digitNumber(a) - 1).toInt()) {
-            tf = false
-            break
-        }
-        a = a % (10.0.pow(digitNumber(a) - 1)).toInt() / 10
-    }
-    return tf
-}
+fun isPalindrome(n: Int): Boolean = n == revert(n)
 
 /**
  * Средняя (3 балла)
@@ -291,25 +292,17 @@ fun cos(x: Double, eps: Double): Double = TODO()
  * Использовать операции со строками в этой задаче запрещается.
  */
 fun squareSequenceDigit(n: Int): Int {
-    var a: Int
-    var x = -1
-    var count = 0
-    for (i in 1..n) {
-        a = i * i
-        when {
-            digitNumber(a) > n - count -> {
-                x = a / 10.0.pow(digitNumber(a) - (n - count)).toInt() % 10
-                break
-            }
-            digitNumber(a) == n - count -> {
-                x = a % 10
-                break
-            }
-            else -> count += digitNumber(a)
-        }
-
+    var l = 1
+    var count = 1
+    var a = 2
+    var power = 1
+    while (count < n) {
+        l = sqr(a)
+        count += power
+        a += 1
+        power = digitNumber(sqr(a))
     }
-    return x
+    return (l / 10.0.pow(count - n).toInt() % 10)
 }
 
 /**

@@ -70,6 +70,8 @@ class Tests {
         assertEquals(2, digitNumber(10))
         assertEquals(2, digitNumber(99))
         assertEquals(3, digitNumber(123))
+        assertEquals(1, digitNumber(-1))
+        assertEquals(3, digitNumber(-123))
         assertEquals(10, digitNumber(Int.MAX_VALUE))
     }
 
@@ -192,6 +194,8 @@ class Tests {
         assertTrue(isPalindrome(24688642))
         assertFalse(isPalindrome(Int.MAX_VALUE))
         assertTrue(isPalindrome(2147447412))
+        assertTrue(isPalindrome(850828058))
+        assertTrue(isPalindrome(20102))
     }
 
     @Test
@@ -235,6 +239,10 @@ class Tests {
         assertEquals(1, squareSequenceDigit(1))
         assertEquals(4, squareSequenceDigit(2))
         assertEquals(5, squareSequenceDigit(7))
+        assertEquals(3, squareSequenceDigit(8))
+        assertEquals(6, squareSequenceDigit(9))
+        assertEquals(4, squareSequenceDigit(10))
+        assertEquals(9, squareSequenceDigit(11))
         assertEquals(6, squareSequenceDigit(12))
         assertEquals(0, squareSequenceDigit(17))
         assertEquals(9, squareSequenceDigit(27))
