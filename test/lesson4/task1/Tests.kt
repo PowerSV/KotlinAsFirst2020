@@ -144,6 +144,14 @@ class Tests {
     }
 
     @Test
+    fun powInt() {
+        assertEquals(2, powInt(2, 1))
+        assertEquals(1, powInt(2, 0))
+        assertEquals(36, powInt(6, 2))
+        assertEquals(1024, powInt(2, 10))
+    }
+
+    @Test
     @Tag("3")
     fun accumulate() {
         assertEquals(listOf<Double>(), accumulate(arrayListOf()))
@@ -165,6 +173,7 @@ class Tests {
         assertEquals(listOf(2), factorize(2))
         assertEquals(listOf(3, 5, 5), factorize(75))
         assertEquals(listOf(2, 3, 3, 19), factorize(342))
+        assertEquals(listOf(2, 2, 2, 3, 5), factorize(120))
     }
 
     @Test
@@ -185,6 +194,7 @@ class Tests {
         assertEquals(listOf(1, 2, 1, 0), convert(100, 4))
         assertEquals(listOf(1, 3, 12), convert(250, 14))
         assertEquals(listOf(2, 14, 12), convert(1000, 19))
+        assertEquals(listOf(4, 4, 3), convert(123, 5))
     }
 
     @Test
