@@ -4,6 +4,7 @@ package lesson4.task1
 
 import lesson1.task1.discriminant
 import lesson1.task1.sqr
+import lesson5.task1.subtractOf
 import kotlin.math.sqrt
 
 // Урок 4: списки
@@ -267,21 +268,8 @@ fun convert(n: Int, base: Int): List<Int> {
  * Использовать функции стандартной библиотеки, напрямую и полностью решающие данную задачу
  * (например, n.toString(base) и подобные), запрещается.
  */
-fun convertToString(n: Int, base: Int): String {
-    val s = "abcdefghijklmnoprstuvwxyz"
-    if (base < 10) {
-        return convert(n, base).joinToString()
-    } else
-    var result: String
-    var x = n
-    while (x >= base) {
-        val y = x % base
-        if (y < 10)
+fun convertToString(n: Int, base: Int): String = TODO()
 
-    }
-    result.add(0, x)
-    return result
-}
 /**
  * Средняя (3 балла)
  *
@@ -289,7 +277,14 @@ fun convertToString(n: Int, base: Int): String {
  * из системы счисления с основанием base в десятичную.
  * Например: digits = (1, 3, 12), base = 14 -> 250
  */
-fun decimal(digits: List<Int>, base: Int): Int = TODO()
+fun decimal(digits: List<Int>, base: Int): Int {
+    var sum = 0
+    val size = digits.size - 1
+    for (i in digits.indices) {
+        sum += digits[i] * powInt(base, size - i)
+    }
+    return sum
+}
 
 /**
  * Сложная (4 балла)
@@ -313,7 +308,47 @@ fun decimalFromString(str: String, base: Int): Int = TODO()
  * 90 = XC, 100 = C, 400 = CD, 500 = D, 900 = CM, 1000 = M.
  * Например: 23 = XXIII, 44 = XLIV, 100 = C
  */
-fun roman(n: Int): String = TODO()
+fun roman(n: Int): String {
+    var answer = ""
+    var roman: String
+    var x = n
+    var subtr: Int
+    while (x > 0) {
+        roman = when (x > 0) {
+            x >= 1000 -> "M"
+            x >= 900 -> "CM"
+            x >= 500 -> "D"
+            x >= 400 -> "CD"
+            x >= 100 -> "C"
+            x >= 90 -> "XC"
+            x >= 50 -> "L"
+            x >= 40 -> "XL"
+            x >= 10 -> "X"
+            x >= 9 -> "IX"
+            x >= 5 -> "V"
+            x >= 4 -> "IV"
+            else -> "I"
+        }
+        answer += roman
+        subtr = when (x > 0) {
+            x >= 1000 -> 1000
+            x >= 900 -> 900
+            x >= 500 -> 500
+            x >= 400 -> 400
+            x >= 100 -> 100
+            x >= 90 -> 90
+            x >= 50 -> 50
+            x >= 40 -> 40
+            x >= 10 -> 10
+            x >= 9 -> 9
+            x >= 5 -> 5
+            x >= 4 -> 4
+            else -> 1
+        }
+        x -= subtr
+    }
+    return answer
+}
 
 /**
  * Очень сложная (7 баллов)
@@ -322,4 +357,92 @@ fun roman(n: Int): String = TODO()
  * Например, 375 = "триста семьдесят пять",
  * 23964 = "двадцать три тысячи девятьсот шестьдесят четыре"
  */
-fun russian(n: Int): String = TODO()
+fun russian(n: Int): String {
+    val left = n / 1000
+    val right = n % 1000
+    var rusLeft = rusForTwoFirstDigit(left)
+    var rusRight = rusForTwoFirstDigit(right)
+    if (left % 100 in 0..9 || left % 100 in 20..99) rusLeft += when (left % 10) {
+        0 -> ""
+        1 -> "одна"
+        2 -> "две"
+        3 -> "три"
+        4 -> "четыре"
+        5 -> "пять"
+        6 -> "шесть"
+        7 -> "семь"
+        8 -> "восемь"
+        9 -> "девять"
+        else -> "что-то пошло не так"
+    }
+    if (right % 100 in 0..9 || right % 100 in 20..99) rusRight += when (right % 10) {
+        0 -> ""
+        1 -> "один"
+        2 -> "два"
+        3 -> "три"
+        4 -> "четыре"
+        5 -> "пять"
+        6 -> "шесть"
+        7 -> "семь"
+        8 -> "восемь"
+        9 -> "девять"
+        else -> "что-то пошло не так"
+    }
+    rusLeft += when {
+        left % 10 in 5..9 || left % 100 in 11..14 || left % 10 == 0 -> " тысяч"
+        left % 10 in 2..4 -> " тысячи"
+        else -> " тысяча"
+    }
+    return when {
+        left == 0 -> rusRight
+        right == 0 -> rusLeft
+        else -> "$rusLeft $rusRight"
+    }
+}
+
+fun rusForTwoFirstDigit(n: Int): String {
+    var russian: String = ""
+    russian += when (n / 100) {
+        1 -> "сто"
+        2 -> "двести"
+        3 -> "триста"
+        4 -> "четыреста"
+        5 -> "пятьсот"
+        6 -> "шестьсот"
+        7 -> "семьсот"
+        8 -> "восемьсот"
+        9 -> "девятьсот"
+        else -> ""
+    }
+    if (n % 100 != 0) {
+        if (n / 10 % 10 != 0 && n / 100 != 0) russian += " "
+        if (n % 100 in 10..19) russian += when (n % 100) {
+            10 -> "десять"
+            11 -> "одиннадцать"
+            12 -> "двенадцать"
+            13 -> "тринадцать"
+            14 -> "четырнадцать"
+            15 -> "пятнадцать"
+            16 -> "шестнадцать"
+            17 -> "семнадцать"
+            18 -> "восемнадцать"
+            19 -> "девятнадцать"
+            else -> "что-то пошло не так"
+        }
+        else {
+            russian += when (n % 100 / 10) {
+                2 -> "двадцать"
+                3 -> "тридцать"
+                4 -> "сорок "
+                5 -> "пятьдесят"
+                6 -> "шестьдесят"
+                7 -> "семьдесят"
+                8 -> "восемьдесят"
+                9 -> "девяносто"
+                else -> ""
+            }
+            if (n % 10 != 0 && n / 10 != 0) russian += " "
+        }
+    }
+    return russian
+}
