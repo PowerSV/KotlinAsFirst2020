@@ -4,7 +4,6 @@ package lesson4.task1
 
 import lesson1.task1.discriminant
 import lesson1.task1.sqr
-import lesson5.task1.subtractOf
 import kotlin.math.sqrt
 
 // Урок 4: списки
