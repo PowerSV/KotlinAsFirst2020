@@ -401,7 +401,7 @@ fun russian(n: Int): String {
 }
 
 fun rusForTwoFirstDigit(n: Int): String {
-    var russian: String = ""
+    var russian = ""
     russian += when (n / 100) {
         1 -> "сто"
         2 -> "двести"
