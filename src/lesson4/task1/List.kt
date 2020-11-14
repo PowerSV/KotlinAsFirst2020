@@ -1,4 +1,4 @@
-@file:Suppress("UNUSED_PARAMETER", "ConvertCallChainIntoSequence")
+@file:Suppress("UNUSED_PARAMETER", "ConvertCallChainIntoSequence", "NAME_SHADOWING")
 
 package lesson4.task1
 
@@ -143,7 +143,6 @@ fun mean(list: List<Double>): Double = if (list.isNotEmpty()) list.sum() / list.
  * Обратите внимание, что данная функция должна изменять содержание списка list, а не его копии.
  */
 fun center(list: MutableList<Double>): MutableList<Double> {
-    if (list.isEmpty()) return list
     val m = mean(list)
     for (i in 0 until list.size) {
         val element = list[i]
@@ -159,14 +158,8 @@ fun center(list: MutableList<Double>): MutableList<Double> {
  * представленные в виде списков a и b. Скалярное произведение считать по формуле:
  * C = a1b1 + a2b2 + ... + aNbN. Произведение пустых векторов считать равным 0.
  */
-fun times(a: List<Int>, b: List<Int>): Int {
-    if (a.isEmpty()) return 0
-    var c = 0
-    for (i in a.indices) {
-        c += a[i] * b[i]
-    }
-    return c
-}
+fun times(a: List<Int>, b: List<Int>): Int = a.zip(b) { a, b -> a * b }.sum()
+
 
 /**
  * Средняя (3 балла)
@@ -177,7 +170,6 @@ fun times(a: List<Int>, b: List<Int>): Int {
  * Значение пустого многочлена равно 0 при любом x.
  */
 fun polynom(p: List<Int>, x: Int): Int {
-    if (p.isEmpty()) return 0
     var mean = 0
     for (i in p.indices) {
         mean += p[i] * powInt(x, i)
@@ -221,7 +213,6 @@ fun factorize(n: Int): List<Int> {
         if (x % i == 0) {
             result.add(i)
             x /= i
-            i = 2
             continue
         }
         i++
@@ -249,11 +240,11 @@ fun convert(n: Int, base: Int): List<Int> {
     val result = mutableListOf<Int>()
     var x = n
     while (x >= base) {
-        result.add(0, x % base)
+        result.add(x % base)
         x /= base
     }
-    result.add(0, x)
-    return result
+    result.add(x)
+    return result.reversed()
 }
 
 /**
@@ -432,7 +423,7 @@ fun rusForTwoFirstDigit(n: Int): String {
             russian += when (n % 100 / 10) {
                 2 -> "двадцать"
                 3 -> "тридцать"
-                4 -> "сорок "
+                4 -> "сорок"
                 5 -> "пятьдесят"
                 6 -> "шестьдесят"
                 7 -> "семьдесят"

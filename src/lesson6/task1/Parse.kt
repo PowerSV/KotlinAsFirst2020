@@ -2,6 +2,10 @@
 
 package lesson6.task1
 
+import lesson2.task2.daysInMonth
+import java.lang.NumberFormatException
+import kotlin.math.max
+
 // Урок 6: разбор строк, исключения
 // Максимальное количество баллов = 13
 // Рекомендуемое количество баллов = 11
@@ -74,7 +78,30 @@ fun main() {
  * Обратите внимание: некорректная с точки зрения календаря дата (например, 30.02.2009) считается неверными
  * входными данными.
  */
-fun dateStrToDigit(str: String): String = TODO()
+fun dateStrToDigit(str: String): String {
+    val parts = str.split(" ")
+    if (parts.size != 3) return ""
+    val month = when {
+        parts[1] == "января" -> 1
+        parts[1] == "февраля" -> 2
+        parts[1] == "марта" -> 3
+        parts[1] == "апреля" -> 4
+        parts[1] == "мая" -> 5
+        parts[1] == "июня" -> 6
+        parts[1] == "июля" -> 7
+        parts[1] == "августа" -> 8
+        parts[1] == "сентября" -> 9
+        parts[1] == "октября" -> 10
+        parts[1] == "ноября" -> 11
+        parts[1] == "декабря" -> 12
+        else -> return ""
+    }
+    val year = parts[2].toInt()
+    if (year <= 0) return ""
+    val day = parts[0].toInt()
+    if (day !in 1..daysInMonth(month, year)) return ""
+    return String.format("%02d.%02d.%d", day, month, year)
+}
 
 /**
  * Средняя (4 балла)
@@ -102,7 +129,11 @@ fun dateDigitToStr(digital: String): String = TODO()
  *
  * PS: Дополнительные примеры работы функции можно посмотреть в соответствующих тестах.
  */
-fun flattenPhoneNumber(phone: String): String = TODO()
+fun flattenPhoneNumber(phone: String): String {
+    return if (Regex("""[\s-]""").replace(phone, "").matches(Regex("""(\+\d+)?(\(\d+\))?\d+""")))
+        Regex("""[\s-()]""").replace(phone, "")
+    else ""
+}
 
 /**
  * Средняя (5 баллов)
@@ -114,7 +145,20 @@ fun flattenPhoneNumber(phone: String): String = TODO()
  * Прочитать строку и вернуть максимальное присутствующее в ней число (717 в примере).
  * При нарушении формата входной строки или при отсутствии в ней чисел, вернуть -1.
  */
-fun bestLongJump(jumps: String): Int = TODO()
+fun bestLongJump(jumps: String): Int {
+    val parts = jumps.split(" ")
+    var bestJump = -1
+    for (element in parts)
+        if (element != "-" && element != "%") {
+            try {
+                val n = element.toInt()
+                bestJump = max(n, bestJump)
+            } catch (e: NumberFormatException) {
+                return -1
+            }
+        }
+    return bestJump
+}
 
 /**
  * Сложная (6 баллов)
@@ -127,7 +171,15 @@ fun bestLongJump(jumps: String): Int = TODO()
  * При нарушении формата входной строки, а также в случае отсутствия удачных попыток,
  * вернуть -1.
  */
-fun bestHighJump(jumps: String): Int = TODO()
+fun bestHighJump(jumps: String): Int {
+    var bestJump = -1
+    val luckyJumps = Regex("""[-%]""").replace(jumps, "")
+    if ("+" !in luckyJumps) return -1
+    val result = Regex("""\d+\s+\+""").findAll(luckyJumps, 0)
+    for (element in result)
+        bestJump = max(element.value.replace(" +", "").toInt(), bestJump)
+    return bestJump
+}
 
 /**
  * Сложная (6 баллов)
@@ -213,4 +265,57 @@ fun fromRoman(roman: String): Int = TODO()
  * IllegalArgumentException должен бросаться даже если ошибочная команда не была достигнута в ходе выполнения.
  *
  */
-fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> = TODO()
+fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> {
+    val accessibleChar = setOf(' ', '+', '-', '<', '>', '[', ']')
+    if (commands.toCharArray().toSet().intersect(accessibleChar) != commands.toCharArray().toSet())
+        throw IllegalArgumentException()
+    val ans = MutableList(cells) { 0 }
+    // есть ли у символа [ парный символ ]
+    var countBrackets = 0
+    for (i in commands) {
+        when (i) {
+            '[' -> countBrackets++
+            ']' -> countBrackets--
+        }
+        if (countBrackets < 0) throw IllegalArgumentException()
+    }
+    if (countBrackets != 0) throw IllegalArgumentException()
+    var k = 0
+    var index = 0
+    var startPoint = cells / 2
+    val cycleInBrackets = mutableListOf<Int>()
+    while (index < commands.length && k < limit) {
+        when (commands[index]) {
+            '[' -> {
+                var secondBracket = index + 1
+                for (j in index + 1 until commands.length) {
+                    if (commands[j] == '[') countBrackets++
+                    if (commands[j] == ']')
+                        if (countBrackets != 0) countBrackets--
+                        else {
+                            secondBracket = j
+                            break
+                        }
+                }
+                if (ans[startPoint] == 0) index = secondBracket
+                else cycleInBrackets.add(index)
+            }
+            ']' ->
+                if (ans[startPoint] != 0) index = cycleInBrackets.last()
+                else cycleInBrackets.removeLast()
+            '>' -> {
+                if (startPoint == cells - 1) throw IllegalStateException()
+                else startPoint++
+            }
+            '<' -> {
+                if (startPoint == 0) throw IllegalStateException()
+                else startPoint--
+            }
+            '+' -> ans[startPoint]++
+            '-' -> ans[startPoint]--
+        }
+        index++
+        k++
+    }
+    return ans
+}

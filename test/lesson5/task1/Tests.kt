@@ -227,6 +227,13 @@ class Tests {
                 "печенье"
             )
         )
+        assertEquals(
+            "Мария",
+            findCheapestStuff(
+                mapOf("Мария" to ("печенье" to Double.MAX_VALUE)),
+                "печенье"
+            )
+        )
     }
 
     @Test
@@ -235,6 +242,7 @@ class Tests {
         assertFalse(canBuildFrom(emptyList(), "foo"))
         assertTrue(canBuildFrom(listOf('a', 'b', 'o'), "baobab"))
         assertFalse(canBuildFrom(listOf('a', 'm', 'r'), "Marat"))
+        assertTrue(canBuildFrom(listOf('t', 'a', 'm', 'r'), "Marat"))
     }
 
     @Test
