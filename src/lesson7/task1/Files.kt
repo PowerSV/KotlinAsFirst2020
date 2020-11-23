@@ -1,8 +1,12 @@
-@file:Suppress("UNUSED_PARAMETER", "ConvertCallChainIntoSequence")
+@file:Suppress(
+    "UNUSED_PARAMETER", "ConvertCallChainIntoSequence", "NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS",
+    "TYPE_INFERENCE_ONLY_INPUT_TYPES_WARNING"
+)
 
 package lesson7.task1
 
 import java.io.File
+import kotlin.math.max
 
 // Урок 7: работа с файлами
 // Урок интегральный, поэтому его задачи имеют сильно увеличенную стоимость
@@ -63,7 +67,13 @@ fun alignFile(inputName: String, lineLength: Int, outputName: String) {
  * Подчёркивание в середине и/или в конце строк значения не имеет.
  */
 fun deleteMarked(inputName: String, outputName: String) {
-    TODO()
+    val writer = File(outputName).bufferedWriter()
+    File(inputName).useLines { sequence ->
+        sequence.filter { !it.startsWith("_") }.forEach { line ->
+            writer.appendLine(line)
+        }
+    }
+    writer.close()
 }
 
 /**
@@ -75,7 +85,20 @@ fun deleteMarked(inputName: String, outputName: String) {
  * Регистр букв игнорировать, то есть буквы е и Е считать одинаковыми.
  *
  */
-fun countSubstrings(inputName: String, substrings: List<String>): Map<String, Int> = TODO()
+fun countSubstrings(inputName: String, substrings: List<String>): Map<String, Int> {
+    val map = mutableMapOf<String, Int>()
+    for (myString in substrings) map[myString] = 0
+    for (myString in substrings) {
+        for (line in File(inputName).readLines()) {
+            var i = 0
+            while (line.indexOf(myString, i, true) != -1) {
+                map[myString] = map[myString]!! + 1
+                i = line.indexOf(myString, i, true) + 1
+            }
+        }
+    }
+    return map
+}
 
 
 /**
@@ -92,7 +115,22 @@ fun countSubstrings(inputName: String, substrings: List<String>): Map<String, In
  *
  */
 fun sibilants(inputName: String, outputName: String) {
-    TODO()
+    val writer = File(outputName).bufferedWriter()
+    val map = mapOf(
+        "Я" to "А", "Ы" to "И", "Ю" to "У", "я" to "а", "ы" to "и", "ю" to "у"
+    )
+    val list = listOf('Ж', 'Ч', 'Ш', 'Щ', 'ж', 'ч', 'ш', 'щ')
+    for (line in File(inputName).readLines()) {
+        writer.write(line[0].toString())
+        for (i in 1 until line.length) {
+            val index = line[i].toString()
+            if (line[i - 1] in list && map[index] != null)
+                writer.write(map[index])
+            else writer.write(index)
+        }
+        writer.newLine()
+    }
+    writer.close()
 }
 
 /**
@@ -113,7 +151,21 @@ fun sibilants(inputName: String, outputName: String) {
  *
  */
 fun centerFile(inputName: String, outputName: String) {
-    TODO()
+    val writer = File(outputName).bufferedWriter()
+    val listOfStrings = mutableListOf<String>()
+    for (line in File(inputName).readLines()) {
+        listOfStrings.add(line.trim())
+    }
+    var longest = listOfStrings[0].length
+    for (line in listOfStrings) {
+        longest = max(line.length, longest)
+    }
+    for (line in listOfStrings) {
+        writer.write(" ".repeat((longest - line.length) / 2))
+        writer.write(line)
+        writer.newLine()
+    }
+    writer.close()
 }
 
 /**
@@ -268,21 +320,78 @@ Suspendisse ~~et elit in enim tempus iaculis~~.
  *
  * Соответствующий выходной файл:
 <html>
-    <body>
-        <p>
-            Lorem ipsum <i>dolor sit amet</i>, consectetur <b>adipiscing</b> elit.
-            Vestibulum lobortis. <s>Est vehicula rutrum <i>suscipit</i></s>, ipsum <s>lib</s>ero <i>placerat <b>tortor</b></i>.
-        </p>
-        <p>
-            Suspendisse <s>et elit in enim tempus iaculis</s>.
-        </p>
-    </body>
+<body>
+<p>
+Lorem ipsum <i>dolor sit amet</i>, consectetur <b>adipiscing</b> elit.
+Vestibulum lobortis. <s>Est vehicula rutrum <i>suscipit</i></s>, ipsum <s>lib</s>ero <i>placerat <b>tortor</b></i>.
+</p>
+<p>
+Suspendisse <s>et elit in enim tempus iaculis</s>.
+</p>
+</body>
 </html>
  *
  * (Отступы и переносы строк в примере добавлены для наглядности, при решении задачи их реализовывать не обязательно)
  */
 fun markdownToHtmlSimple(inputName: String, outputName: String) {
-    TODO()
+    val writer = File(outputName).bufferedWriter()
+    writer.write("<html>" + "\n")
+    writer.write("<body>" + "\n")
+    writer.write("<p>" + "\n")
+    var emptyStringFirst = false
+    for (line in File(inputName).readLines()) {
+        var i = 0
+        var italicsFirst = true
+        var boldFirst = true
+        var strikeFirst = true
+        if (line.isEmpty()) {
+            writer.newLine()
+            emptyStringFirst = if (emptyStringFirst) {
+                writer.write("<p>")
+                false
+            } else {
+                writer.write("</p>")
+                true
+            }
+            continue
+        }
+        if (line.isNotEmpty() && emptyStringFirst) writer.write("<p>" + "\n")
+        while (i < line.length) {
+            if (i == line.indexOf("**", i)) {
+                boldFirst = if (boldFirst) {
+                    writer.write("<b>")
+                    false
+                } else {
+                    writer.write("</b>")
+                    true
+                }
+                i++
+            } else if (i == line.indexOf("*", i) && (line[i + 1] != '*' || i == line.length - 1)) {
+                italicsFirst = if (italicsFirst) {
+                    writer.write("<i>")
+                    false
+                } else {
+                    writer.write("</i>")
+                    true
+                }
+            } else if (i == line.indexOf("~~", i)) {
+                strikeFirst = if (strikeFirst) {
+                    writer.write("<s>")
+                    false
+                } else {
+                    writer.write("</s>")
+                    true
+                }
+                i++
+            } else writer.write(line[i].toString())
+            i++
+        }
+        writer.newLine()
+    }
+    writer.write("</p>" + "\n")
+    writer.write("</body>" + "\n")
+    writer.write("</html>" + "\n")
+    writer.close()
 }
 
 /**
@@ -319,65 +428,65 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
  *
  * Пример входного файла:
 ///////////////////////////////начало файла/////////////////////////////////////////////////////////////////////////////
-* Утка по-пекински
-    * Утка
-    * Соус
-* Салат Оливье
-    1. Мясо
-        * Или колбаса
-    2. Майонез
-    3. Картофель
-    4. Что-то там ещё
-* Помидоры
-* Фрукты
-    1. Бананы
-    23. Яблоки
-        1. Красные
-        2. Зелёные
+ * Утка по-пекински
+ * Утка
+ * Соус
+ * Салат Оливье
+1. Мясо
+ * Или колбаса
+2. Майонез
+3. Картофель
+4. Что-то там ещё
+ * Помидоры
+ * Фрукты
+1. Бананы
+23. Яблоки
+1. Красные
+2. Зелёные
 ///////////////////////////////конец файла//////////////////////////////////////////////////////////////////////////////
  *
  *
  * Соответствующий выходной файл:
 ///////////////////////////////начало файла/////////////////////////////////////////////////////////////////////////////
 <html>
-  <body>
-    <p>
-      <ul>
-        <li>
-          Утка по-пекински
-          <ul>
-            <li>Утка</li>
-            <li>Соус</li>
-          </ul>
-        </li>
-        <li>
-          Салат Оливье
-          <ol>
-            <li>Мясо
-              <ul>
-                <li>Или колбаса</li>
-              </ul>
-            </li>
-            <li>Майонез</li>
-            <li>Картофель</li>
-            <li>Что-то там ещё</li>
-          </ol>
-        </li>
-        <li>Помидоры</li>
-        <li>Фрукты
-          <ol>
-            <li>Бананы</li>
-            <li>Яблоки
-              <ol>
-                <li>Красные</li>
-                <li>Зелёные</li>
-              </ol>
-            </li>
-          </ol>
-        </li>
-      </ul>
-    </p>
-  </body>
+<body>
+<p>
+<ul>
+<li>
+Утка по-пекински
+<ul>
+<li>Утка</li>
+<li>Соус</li>
+</ul>
+</li>
+<li>
+Салат Оливье
+<ol>
+<li>Мясо
+<ul>
+<li>Или колбаса</li>
+</ul>
+</li>
+<li>Майонез</li>
+<li>Картофель</li>
+<li>Что-то там ещё</li>
+</ol>
+</li>
+<li>Помидоры</li>
+<li>Фрукты
+<ol>
+<li>Бананы</li>
+<li>Яблоки
+<ol>
+<li>Красные</li>
+<li>Зелёные</li>
+</ol>
+</li>
+</ol>
+</li>
+</ul>
+</p>
+</body>
 </html>
 ///////////////////////////////конец файла//////////////////////////////////////////////////////////////////////////////
  * (Отступы и переносы строк в примере добавлены для наглядности, при решении задачи их реализовывать не обязательно)
@@ -404,23 +513,23 @@ fun markdownToHtml(inputName: String, outputName: String) {
  * Вывести в выходной файл процесс умножения столбиком числа lhv (> 0) на число rhv (> 0).
  *
  * Пример (для lhv == 19935, rhv == 111):
-   19935
-*    111
+19935
+ *    111
 --------
-   19935
+19935
 + 19935
 +19935
 --------
- 2212785
+2212785
  * Используемые пробелы, отступы и дефисы должны в точности соответствовать примеру.
  * Нули в множителе обрабатывать так же, как и остальные цифры:
-  235
-*  10
+235
+ *  10
 -----
-    0
+0
 +235
 -----
- 2350
+2350
  *
  */
 fun printMultiplicationProcess(lhv: Int, rhv: Int, outputName: String) {
@@ -434,16 +543,16 @@ fun printMultiplicationProcess(lhv: Int, rhv: Int, outputName: String) {
  * Вывести в выходной файл процесс деления столбиком числа lhv (> 0) на число rhv (> 0).
  *
  * Пример (для lhv == 19935, rhv == 22):
-  19935 | 22
- -198     906
- ----
-    13
-    -0
-    --
-    135
-   -132
-   ----
-      3
+19935 | 22
+-198     906
+----
+13
+-0
+--
+135
+-132
+----
+3
 
  * Используемые пробелы, отступы и дефисы должны в точности соответствовать примеру.
  *
