@@ -6,7 +6,9 @@
 package lesson7.task1
 
 import java.io.File
+import java.lang.StringBuilder
 import kotlin.math.max
+import java.util.Stack
 
 // Урок 7: работа с файлами
 // Урок интегральный, поэтому его задачи имеют сильно увеличенную стоимость
@@ -87,9 +89,10 @@ fun deleteMarked(inputName: String, outputName: String) {
  */
 fun countSubstrings(inputName: String, substrings: List<String>): Map<String, Int> {
     val map = mutableMapOf<String, Int>()
-    for (myString in substrings) map[myString] = 0
-    for (myString in substrings) {
-        for (line in File(inputName).readLines()) {
+    val set = substrings.toSet()
+    for (myString in set) map[myString] = 0
+    for (line in File(inputName).readLines()) {
+        for (myString in set) {
             var i = 0
             while (line.indexOf(myString, i, true) != -1) {
                 map[myString] = map[myString]!! + 1
@@ -160,11 +163,13 @@ fun centerFile(inputName: String, outputName: String) {
     for (line in listOfStrings) {
         longest = max(line.length, longest)
     }
-    for (line in listOfStrings) {
-        writer.write(" ".repeat((longest - line.length) / 2))
-        writer.write(line)
-        writer.newLine()
-    }
+    if (longest == 0) writer.write("")
+    else
+        for (line in listOfStrings) {
+            writer.write(" ".repeat((longest - line.length) / 2))
+            writer.write(line)
+            writer.newLine()
+        }
     writer.close()
 }
 
@@ -338,53 +343,53 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
     writer.write("<html>" + "\n")
     writer.write("<body>" + "\n")
     writer.write("<p>" + "\n")
-    var emptyStringFirst = false
-    for (line in File(inputName).readLines()) {
+    val stack = mutableListOf(0)
+    /*
+    Условные обозачения тэгов в стэке
+    0 - <p>
+    1 - <i> - *
+    2 - <b> - **
+    3 - <s> - ~~
+    */
+    val listOfLines = File(inputName).readLines()
+    for (line in listOfLines) {
         var i = 0
-        var italicsFirst = true
-        var boldFirst = true
-        var strikeFirst = true
-        if (line.isEmpty()) {
-            writer.newLine()
-            emptyStringFirst = if (emptyStringFirst) {
-                writer.write("<p>")
-                false
-            } else {
-                writer.write("</p>")
-                true
-            }
-            continue
-        }
-        if (line.isNotEmpty() && emptyStringFirst) writer.write("<p>" + "\n")
         while (i < line.length) {
-            if (i == line.indexOf("**", i)) {
-                boldFirst = if (boldFirst) {
-                    writer.write("<b>")
-                    false
+            when {
+                line[i] == '*' -> if (i == line.length - 1 || line[i + 1] != '*') {
+                    if (stack.last() != 1) {
+                        writer.write("<i>")
+                        stack.add(1)
+                    } else {
+                        writer.write("</i>")
+                        stack.removeLast()
+                    }
                 } else {
-                    writer.write("</b>")
-                    true
+                    if (stack.last() != 2) {
+                        writer.write("<b>")
+                        stack.add(2)
+                    } else {
+                        writer.write("</b>")
+                        stack.removeLast()
+                    }
+                    i++
                 }
-                i++
-            } else if (i == line.indexOf("*", i) && (line[i + 1] != '*' || i == line.length - 1)) {
-                italicsFirst = if (italicsFirst) {
-                    writer.write("<i>")
-                    false
-                } else {
-                    writer.write("</i>")
-                    true
-                }
-            } else if (i == line.indexOf("~~", i)) {
-                strikeFirst = if (strikeFirst) {
-                    writer.write("<s>")
-                    false
-                } else {
-                    writer.write("</s>")
-                    true
-                }
-                i++
-            } else writer.write(line[i].toString())
+                line[i] == '~' && i != line.length - 1 -> if (line[i + 1] == '~') {
+                    if (stack.last() != 3) {
+                        writer.write("<s>")
+                        stack.add(3)
+                    } else {
+                        writer.write("</s>")
+                        stack.removeLast()
+                    }
+                    i++
+                } else writer.write(line[i].toString())
+                else -> writer.write(line[i].toString())
+            }
             i++
+        }
+        if (line.isEmpty()) {
+            writer.write("</p>" + "\n" + "<p>")
         }
         writer.newLine()
     }
