@@ -352,9 +352,11 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
     val listOfLines = File(inputName).readText().trim('\n').split("\r\n")
     var i = 0
     for (line in listOfLines) {
-        if (line.isEmpty() && stack.last() != 0) {
-            writer.write("</p>" + "\n" + "<p>")
-            stack.add(0)
+        if (line.isEmpty()) {
+            if (stack.last() != 0) {
+                writer.write("</p>" + "\n" + "<p>")
+                stack.add(0)
+            } else continue
         }
         if (line.isNotEmpty() && stack.last() == 0) stack.removeLast()
         while (i < line.length) {
