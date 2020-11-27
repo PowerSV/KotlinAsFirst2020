@@ -341,7 +341,7 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
     writer.write("<html>" + "\n")
     writer.write("<body>" + "\n")
     writer.write("<p>" + "\n")
-    val stack = mutableListOf(-1) // 0 в листе, т.к. <p> уже записано
+    val stack = mutableListOf(-1, 0) // 0 в листе, т.к. <p> уже записано
     //-1 - для проверки stack.last == smthng, иначе ошибка ListEmpty
     /*
     Условные обозачения тэгов в стэке
@@ -350,7 +350,7 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
     2 - <b> - **
     3 - <s> - ~~
     */
-    val listOfLines = File(inputName).readText().trim('\n').split("\r\n")
+    val listOfLines = File(inputName).readLines()
     var i = 0
     for (line in listOfLines) {
         if (line.isEmpty()) {
