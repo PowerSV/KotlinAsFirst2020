@@ -163,13 +163,11 @@ fun centerFile(inputName: String, outputName: String) {
     for (line in listOfStrings) {
         longest = max(line.length, longest)
     }
-    if (longest == 0) writer.write("")
-    else
-        for (line in listOfStrings) {
-            writer.write(" ".repeat((longest - line.length) / 2))
-            writer.write(line)
-            writer.newLine()
-        }
+    for (line in listOfStrings) {
+        writer.write(" ".repeat((longest - line.length) / 2))
+        writer.write(line)
+        writer.newLine()
+    }
     writer.close()
 }
 
@@ -343,7 +341,7 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
     writer.write("<html>" + "\n")
     writer.write("<body>" + "\n")
     writer.write("<p>" + "\n")
-    val stack = mutableListOf(0)
+    val stack = mutableListOf(-1)
     /*
     Условные обозачения тэгов в стэке
     0 - <p>
@@ -351,9 +349,14 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
     2 - <b> - **
     3 - <s> - ~~
     */
-    val listOfLines = File(inputName).readLines()
+    val listOfLines = File(inputName).readText().trim('\n').split("\r\n")
+    var i = 0
     for (line in listOfLines) {
-        var i = 0
+        if (line.isEmpty() && stack.last() != 0) {
+            writer.write("</p>" + "\n" + "<p>")
+            stack.add(0)
+        }
+        if (line.isNotEmpty() && stack.last() == 0) stack.removeLast()
         while (i < line.length) {
             when {
                 line[i] == '*' -> if (i == line.length - 1 || line[i + 1] != '*') {
@@ -388,10 +391,9 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
             }
             i++
         }
-        if (line.isEmpty()) {
-            writer.write("</p>" + "\n" + "<p>")
-        }
+
         writer.newLine()
+        i = 0
     }
     writer.write("</p>" + "\n")
     writer.write("</body>" + "\n")
