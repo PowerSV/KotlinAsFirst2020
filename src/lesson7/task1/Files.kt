@@ -350,7 +350,7 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
     2 - <b> - **
     3 - <s> - ~~
     */
-    val listOfLines = File(inputName).readText().trim('\n').split("\r\n")
+    val listOfLines = File(inputName).readText().trim('\n').split("\n")
     var i = 0
     for (line in listOfLines) {
         if (line.isBlank()) {
