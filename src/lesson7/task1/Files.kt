@@ -353,14 +353,14 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
     val listOfLines = File(inputName).readLines()
     var i = 0
     for (line in listOfLines) {
-        val emptyLine = line.replace("\\s+", "")
-        if (emptyLine.isEmpty()) {
+        if (line.isBlank()) {
             if (stack.last() != 0) {
-                writer.write("</p>" + "\n" + "<p>")
+                writer.write("</p>" + "\n" + "<p>" + "\n")
                 stack.add(0)
-            } else continue
+            }
+            continue
         }
-        if (emptyLine.isNotEmpty() && stack.last() == 0) stack.removeLast()
+        if (line.isNotBlank() && stack.last() == 0) stack.removeLast()
         while (i < line.length) {
             when {
                 line[i] == '*' -> if (i == line.length - 1 || line[i + 1] != '*') {
