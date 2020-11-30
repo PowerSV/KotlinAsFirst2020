@@ -129,6 +129,13 @@ Basic, Ruby, Swift.
         )
         File("temp.txt").delete()
 
+        centerFile("input/empty.txt", "temp.txt")
+        assertFileContent(
+            "temp.txt",
+            ""
+        )
+        File("temp.txt").delete()
+
     }
 
     @Test

@@ -159,7 +159,7 @@ fun centerFile(inputName: String, outputName: String) {
     for (line in File(inputName).readLines()) {
         listOfStrings.add(line.trim())
     }
-    var longest = listOfStrings[0].length
+    var longest = 0
     for (line in listOfStrings) {
         longest = max(line.length, longest)
     }
