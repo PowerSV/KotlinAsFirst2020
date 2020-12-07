@@ -319,3 +319,26 @@ fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> {
     }
     return ans
 }
+
+
+/**
+ *
+ *
+ *
+ *
+ */
+fun myFun(phones: List<String>, prefix: String): List<String> {
+    val answer = mutableListOf<String>()
+    if (prefix.contains(Regex("""\D"""))) {
+        throw IllegalArgumentException()
+    }
+    for (line in phones) {
+        val parts = line.split(" ")
+        if (parts.size != 3) throw  IllegalArgumentException()
+        if (parts[0].contains(Regex("""\D"""))) {
+            throw IllegalArgumentException()
+        }
+        if (parts[0].startsWith(prefix)) answer.add("${parts[1]} ${parts[2]}")
+    }
+    return answer
+}

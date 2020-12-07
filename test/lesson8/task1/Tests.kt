@@ -195,6 +195,8 @@ class Tests {
             Line(p, 1.0).crossPoint(Line(p, 2.0)),
             1e-5
         )
+
+
     }
 
     @Test

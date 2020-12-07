@@ -150,4 +150,49 @@ class Tests {
         assertThrows(IllegalArgumentException::class.java) { computeDeviceCells(10, "+>+>[+>", 3) }
         assertThrows(IllegalStateException::class.java) { computeDeviceCells(20, ">>>>>>>>>>>>>", 12) }
     }
+    @Test
+    fun myFun() {
+        /*assertEquals(
+            listOf("Иванов", "Петров"), myFun(
+                listOf(
+                    "4628091 Иванов", "4631794 Петров",
+                    "6409045 Волкова", "7081356 Кошкина"
+                ), "46"
+            )
+        )
+        assertEquals(
+            listOf("Иванов"), myFun(
+                listOf(
+                    "4628091 Иванов", "4631794 Петров",
+                    "6409045 Волкова", "7081356 Кошкина"
+                ), "4628091"
+            )
+        )
+        assertThrows(IllegalArgumentException::class.java) {
+            myFun(
+                listOf(
+                    "4628FD091 Иванов", "4631794 Петров",
+                    "6409045 Волкова", "7081356 Кошкина"
+                ), "46"
+            )
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            myFun(
+                listOf(
+                    "4628091 Иванов Иван Иванович", "4631794 Петров",
+                    "6409045 Волкова", "7081356 Кошкина"
+                ), "46"
+            )
+        }
+
+         */
+        assertEquals(
+            listOf("Иванов Алексей", "Петров Михаил"), myFun(
+                listOf(
+                    "4628091 Иванов Алексей", "4631794 Петров Михаил",
+                    "6409045 Волкова Сергей", "7081356 Кошкина Сергей"
+                ), "46"
+            )
+        )
+    }
 }
