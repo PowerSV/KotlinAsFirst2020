@@ -2,11 +2,9 @@
 
 package lesson8.task1
 
+import lesson1.task1.discriminant
 import lesson1.task1.sqr
-import kotlin.math.PI
-import kotlin.math.cos
-import kotlin.math.sin
-import kotlin.math.sqrt
+import kotlin.math.*
 
 // Урок 8: простые классы
 // Максимальное количество баллов = 40 (без очень трудных задач = 11)
@@ -82,14 +80,17 @@ data class Circle(val center: Point, val radius: Double) {
      * расстояние между их центрами минус сумма их радиусов.
      * Расстояние между пересекающимися окружностями считать равным 0.0.
      */
-    fun distance(other: Circle): Double = TODO()
+    fun distance(other: Circle): Double {
+        val l = center.distance(other.center) - radius - other.radius
+        return if (l <= 0) 0.0 else l
+    }
 
     /**
      * Тривиальная (1 балл)
      *
      * Вернуть true, если и только если окружность содержит данную точку НА себе или ВНУТРИ себя
      */
-    fun contains(p: Point): Boolean = TODO()
+    fun contains(p: Point): Boolean = center.distance(p) <= radius
 }
 
 /**
@@ -109,7 +110,16 @@ data class Segment(val begin: Point, val end: Point) {
  * Дано множество точек. Вернуть отрезок, соединяющий две наиболее удалённые из них.
  * Если в множестве менее двух точек, бросить IllegalArgumentException
  */
-fun diameter(vararg points: Point): Segment = TODO()
+fun diameter(vararg points: Point): Segment {
+    if (points.size < 2) throw IllegalArgumentException()
+    var max = Segment(points[0], points[1])
+    val longest = max.begin.distance(max.end)
+    for (i in 0..points.size - 2)
+        for (j in i + 1 until points.size) {
+            if (points[j].distance(points[i]) > longest) max = Segment(points[i], points[j])
+        }
+    return max
+}
 
 /**
  * Простая (2 балла)
@@ -117,7 +127,11 @@ fun diameter(vararg points: Point): Segment = TODO()
  * Построить окружность по её диаметру, заданному двумя точками
  * Центр её должен находиться посередине между точками, а радиус составлять половину расстояния между ними
  */
-fun circleByDiameter(diameter: Segment): Circle = TODO()
+fun circleByDiameter(diameter: Segment): Circle = Circle(
+    Point((diameter.begin.x + diameter.end.x) / 2, (diameter.begin.y + diameter.end.y) / 2),
+    diameter.begin.distance(diameter.end) / 2
+)
+
 
 /**
  * Прямая, заданная точкой point и углом наклона angle (в радианах) по отношению к оси X.
@@ -138,7 +152,15 @@ class Line private constructor(val b: Double, val angle: Double) {
      * Найти точку пересечения с другой линией.
      * Для этого необходимо составить и решить систему из двух уравнений (каждое для своей прямой)
      */
-    fun crossPoint(other: Line): Point = TODO()
+    fun crossPoint(other: Line): Point {
+        if (angle == other.angle) throw IllegalArgumentException("crossing is impossible, or the lines coincide")
+        val x = -(other.b * cos(angle) - b * cos(other.angle)) /
+                (sin(other.angle) * cos(angle) - sin(angle) * cos(other.angle))
+        val y = -(sin(angle) * other.b - sin(other.angle) * b) /
+                (sin(other.angle) * cos(angle) - sin(angle) * cos(other.angle))
+        //как оказалось, к такому способу задания прямой линии применима формула Крамера
+        return Point(x, y)
+    }
 
     override fun equals(other: Any?) = other is Line && angle == other.angle && b == other.b
 
@@ -156,21 +178,37 @@ class Line private constructor(val b: Double, val angle: Double) {
  *
  * Построить прямую по отрезку
  */
-fun lineBySegment(s: Segment): Line = TODO()
+fun lineBySegment(s: Segment): Line {
+    val x1 = s.begin.x
+    val y1 = s.begin.y
+    val x2 = s.end.x
+    val y2 = s.end.y
+    val angle = if (x1 == x2) PI / 2 else (atan(abs((y2 - y1) / (x2 - x1))) + PI) % PI
+    return Line(s.end, angle)
+}
 
 /**
  * Средняя (3 балла)
  *
  * Построить прямую по двум точкам
  */
-fun lineByPoints(a: Point, b: Point): Line = TODO()
+fun lineByPoints(a: Point, b: Point): Line = lineBySegment(Segment(a, b))
 
 /**
  * Сложная (5 баллов)
  *
  * Построить серединный перпендикуляр по отрезку или по двум точкам
  */
-fun bisectorByPoints(a: Point, b: Point): Line = TODO()
+fun bisectorByPoints(a: Point, b: Point): Line {
+    val x1 = a.x
+    val y1 = a.y
+    val x2 = b.x
+    val y2 = b.y
+    val angle = if (x1 == x2) PI / 2 else (atan((y2 - y1) / (x2 - x1)) + PI) % PI
+    val alpha = if (angle < PI / 2) angle + PI / 2 else angle - PI / 2
+    val p = Point((x2 + x1) / 2, (y2 + y1) / 2)
+    return Line(p, alpha)
+}
 
 /**
  * Средняя (3 балла)
@@ -184,7 +222,20 @@ fun bisectorByPoints(a: Point, b: Point): Line = TODO()
  *
  * Если в списке менее двух окружностей, бросить IllegalArgumentException
  */
-fun findNearestCirclePair(vararg circles: Circle): Pair<Circle, Circle> = TODO()
+fun findNearestCirclePair(vararg circles: Circle): Pair<Circle, Circle> {
+    if (circles.size < 2) throw IllegalArgumentException()
+    var l = circles[0].distance(circles[1])
+    var x = 0
+    var y = 1
+    for (i in 0..circles.size - 2)
+        for (j in i + 1 until circles.size)
+            if (circles[i].distance(circles[j]) < l) {
+                l = circles[i].distance(circles[j])
+                x = i
+                y = j
+            }
+    return Pair(circles[x], circles[y])
+}
 
 /**
  * Сложная (5 баллов)
@@ -195,7 +246,11 @@ fun findNearestCirclePair(vararg circles: Circle): Pair<Circle, Circle> = TODO()
  * (построить окружность по трём точкам, или
  * построить окружность, описанную вокруг треугольника - эквивалентная задача).
  */
-fun circleByThreePoints(a: Point, b: Point, c: Point): Circle = TODO()
+fun circleByThreePoints(a: Point, b: Point, c: Point): Circle {
+    val center = bisectorByPoints(a, b).crossPoint(bisectorByPoints(b, c))
+    val radius = center.distance(b)
+    return Circle(center, radius)
+}
 
 /**
  * Очень сложная (10 баллов)
@@ -208,5 +263,32 @@ fun circleByThreePoints(a: Point, b: Point, c: Point): Circle = TODO()
  * три точки данного множества, либо иметь своим диаметром отрезок,
  * соединяющий две самые удалённые точки в данном множестве.
  */
-fun minContainingCircle(vararg points: Point): Circle = TODO()
+fun minContainingCircle(vararg points: Point): Circle {
+    return when {
+        points.isEmpty() -> throw IllegalArgumentException()
+        points.size == 1 -> Circle(points[0], 0.0)
+        else -> {
+            val p = points.toList().shuffled()
+            var disc = circleByDiameter(Segment(p[0], p[1]))
+            for (i in 2 until p.size)
+                if (!disc.contains(points[i])) disc = minDiscWithPoint(p[i], p.take(i))
+            disc
+        }
+    }
+}
 
+fun minDiscWithPoint(q: Point, points: List<Point>): Circle {
+    val p = points.shuffled()
+    var discWithPoint = circleByDiameter(Segment(p[0], q))
+    for (i in 1 until points.size) {
+        if (!discWithPoint.contains(points[i])) discWithPoint = minDiscWithTwoPoints(q, p[i], p.take(i))
+    }
+    return discWithPoint
+}
+
+fun minDiscWithTwoPoints(q1: Point, q2: Point, points: List<Point>): Circle {
+    var discWitTwoPoints = circleByDiameter(Segment(q1, q2))
+    for (point in points) if (!discWitTwoPoints.contains(point))
+        discWitTwoPoints = circleByThreePoints(point, q1, q2)
+    return discWitTwoPoints
+}
