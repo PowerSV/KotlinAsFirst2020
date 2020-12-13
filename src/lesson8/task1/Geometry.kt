@@ -113,10 +113,13 @@ data class Segment(val begin: Point, val end: Point) {
 fun diameter(vararg points: Point): Segment {
     if (points.size < 2) throw IllegalArgumentException()
     var max = Segment(points[0], points[1])
-    val longest = max.begin.distance(max.end)
+    var longest = max.begin.distance(max.end)
     for (i in 0..points.size - 2)
         for (j in i + 1 until points.size) {
-            if (points[j].distance(points[i]) > longest) max = Segment(points[i], points[j])
+            if (points[j].distance(points[i]) > longest) {
+                max = Segment(points[i], points[j])
+                longest = max.begin.distance(max.end)
+            }
         }
     return max
 }
@@ -183,7 +186,7 @@ fun lineBySegment(s: Segment): Line {
     val y1 = s.begin.y
     val x2 = s.end.x
     val y2 = s.end.y
-    val angle = if (x1 == x2) PI / 2 else (atan(abs((y2 - y1) / (x2 - x1))) + PI) % PI
+    val angle = if (x1 == x2) PI / 2 else (atan((y2 - y1) / (x2 - x1)) + PI) % PI
     return Line(s.end, angle)
 }
 

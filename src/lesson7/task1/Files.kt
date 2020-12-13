@@ -69,13 +69,13 @@ fun alignFile(inputName: String, lineLength: Int, outputName: String) {
  * Подчёркивание в середине и/или в конце строк значения не имеет.
  */
 fun deleteMarked(inputName: String, outputName: String) {
-    val writer = File(outputName).bufferedWriter()
-    File(inputName).useLines { sequence ->
-        sequence.filter { !it.startsWith("_") }.forEach { line ->
-            writer.appendLine(line)
+    File(outputName).bufferedWriter().use {
+        File(inputName).useLines { sequence ->
+            sequence.filter { !it.startsWith("_") }.forEach { line ->
+                it.appendLine(line)
+            }
         }
     }
-    writer.close()
 }
 
 /**
@@ -202,7 +202,7 @@ fun alignFileByWidth(inputName: String, outputName: String) {
     val writer = File(outputName).bufferedWriter()
     val listOfStrings = mutableListOf<String>()
     for (line in File(inputName).readLines()) {
-        listOfStrings.add(Regex("""" {2,}""").replace(line, " ").trim())
+        listOfStrings.add(line.split(' ').filter { it.isNotEmpty() }.joinToString(separator = " "))
     }
     var longest = 0
     for (line in listOfStrings) {
@@ -211,25 +211,19 @@ fun alignFileByWidth(inputName: String, outputName: String) {
 
     for (line in listOfStrings) {
         if (line.isNotEmpty()) {
-            var spaces = longest - line.length
             val words = line.split(' ')
             if (words.size > 1) {
+                val spaces = longest - line.length
                 val spaceBetweenTwoWords = spaces / (words.size - 1)
                 var moreSpaces = spaces % (words.size - 1)
-                var numberOfWord = 0
-                for (word in words) {
-                    writer.write(word)
-                    numberOfWord++
-                    if (numberOfWord < words.size) writer.write(" ")
-                    if (spaces > 0) {
-                        writer.write(" ".repeat(spaceBetweenTwoWords))
-                        spaces -= spaceBetweenTwoWords
+                for ((index, word) in words.withIndex()) {
+                    if (index < words.size - 1) {
+                        writer.write(word + " ".repeat(spaceBetweenTwoWords + 1))
                         if (moreSpaces > 0) {
                             writer.write(" ")
                             moreSpaces--
-                            spaces--
                         }
-                    }
+                    } else writer.write(words.last())
                 }
 
             } else writer.write(words[0])
