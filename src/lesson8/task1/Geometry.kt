@@ -3,6 +3,7 @@
 package lesson8.task1
 
 import lesson1.task1.sqr
+import java.math.BigDecimal
 import kotlin.math.*
 
 // Урок 8: простые классы
@@ -89,7 +90,7 @@ data class Circle(val center: Point, val radius: Double) {
      *
      * Вернуть true, если и только если окружность содержит данную точку НА себе или ВНУТРИ себя
      */
-    fun contains(p: Point): Boolean = sqr(p.x - center.x) + sqr(p.y - center.y) <= sqr(radius)
+    fun contains(p: Point): Boolean = p.distance(center) <= radius + 1e-5
 }
 
 /**
@@ -290,4 +291,3 @@ fun minDiscWithTwoPoints(q1: Point, q2: Point, points: List<Point>): Circle {
         disc = circleByThreePoints(point, q1, q2)
     return disc
 }
-
