@@ -267,31 +267,28 @@ fun circleByThreePoints(a: Point, b: Point, c: Point): Circle {
  * соединяющий две самые удалённые точки в данном множестве.
  */
 fun minContainingCircle(vararg points: Point): Circle {
-    return when {
-        points.isEmpty() -> throw IllegalArgumentException()
-        points.size == 1 -> Circle(points[0], 0.0)
-        else -> {
-            val p = points.toList().shuffled()
-            var disc = circleByDiameter(Segment(p[0], p[1]))
-            for (i in 2 until p.size)
-                if (!disc.contains(points[i])) disc = minDiscWithPoint(p[i], p.take(i))
-            disc
-        }
+    if (points.isEmpty()) throw IllegalArgumentException()
+    return if (points.size == 1) Circle(points[0], 0.0) else {
+        val p = points.toList().shuffled()
+        var disc = circleByDiameter(Segment(p[0], p[1]))
+        for (i in 2 until p.size)
+            if (!disc.contains(points[i])) disc = minDiscWithPoint(p[i], p.take(i))
+        disc
     }
 }
 
 fun minDiscWithPoint(q: Point, points: List<Point>): Circle {
     val p = points.shuffled()
     var discWithPoint = circleByDiameter(Segment(p[0], q))
-    for (i in 1 until points.size) {
-        if (!discWithPoint.contains(points[i])) discWithPoint = minDiscWithTwoPoints(q, p[i], p.take(i))
+    for (i in 1 until p.size) {
+        if (!discWithPoint.contains(p[i])) discWithPoint = minDiscWithTwoPoints(q, p[i], p.take(i))
     }
     return discWithPoint
 }
 
 fun minDiscWithTwoPoints(q1: Point, q2: Point, points: List<Point>): Circle {
-    var discWitTwoPoints = circleByDiameter(Segment(q1, q2))
-    for (point in points) if (!discWitTwoPoints.contains(point))
-        discWitTwoPoints = circleByThreePoints(point, q1, q2)
-    return discWitTwoPoints
+    var disc = circleByDiameter(Segment(q1, q2))
+    for (point in points) if (!disc.contains(point))
+        disc = circleByThreePoints(point, q1, q2)
+    return disc
 }
