@@ -2,7 +2,6 @@
 
 package lesson8.task1
 
-import lesson1.task1.discriminant
 import lesson1.task1.sqr
 import kotlin.math.*
 
@@ -90,7 +89,7 @@ data class Circle(val center: Point, val radius: Double) {
      *
      * Вернуть true, если и только если окружность содержит данную точку НА себе или ВНУТРИ себя
      */
-    fun contains(p: Point): Boolean = center.distance(p) <= radius
+    fun contains(p: Point): Boolean = sqr(p.x - center.x) + sqr(p.y - center.y) <= sqr(radius)
 }
 
 /**
@@ -268,13 +267,12 @@ fun circleByThreePoints(a: Point, b: Point, c: Point): Circle {
  */
 fun minContainingCircle(vararg points: Point): Circle {
     if (points.isEmpty()) throw IllegalArgumentException()
-    return if (points.size == 1) Circle(points[0], 0.0) else {
-        val p = points.toList().shuffled()
-        var disc = circleByDiameter(Segment(p[0], p[1]))
-        for (i in 2 until p.size)
-            if (!disc.contains(points[i])) disc = minDiscWithPoint(p[i], p.take(i))
-        disc
-    }
+    if (points.size == 1) return Circle(points[0], 0.0)
+    val p = points.toList().shuffled()
+    var disc = circleByDiameter(Segment(p[0], p[1]))
+    for (i in 2 until p.size)
+        if (!disc.contains(points[i])) disc = minDiscWithPoint(p[i], p.take(i))
+    return disc
 }
 
 fun minDiscWithPoint(q: Point, points: List<Point>): Circle {
@@ -292,3 +290,4 @@ fun minDiscWithTwoPoints(q1: Point, q2: Point, points: List<Point>): Circle {
         disc = circleByThreePoints(point, q1, q2)
     return disc
 }
+

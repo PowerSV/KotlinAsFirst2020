@@ -257,4 +257,18 @@ class Tests {
             assertTrue(result.contains(p))
         }
     }
+
+    @Test
+    fun minContainingCircle1() {
+        val p1 = Point(0.0, 0.030320863261759534)
+        val p2 = Point(-632.0, -632.0)
+        val p3 = Point(0.31070181161695665, 0.0)
+        val p4 = Point(2.220446049250313e-16, 5e-324)
+        val p5 = Point(0.8042104921407742, 0.8386960324877268)
+        val result = minContainingCircle(p1, p2, p3, p4, p5)
+        assertEquals(447.4723, result.radius, 0.02)
+        for (p in listOf(p1, p2, p3, p4, p5)) {
+            assertTrue(result.contains(p))
+        }
+    }
 }

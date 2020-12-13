@@ -6,9 +6,7 @@
 package lesson7.task1
 
 import java.io.File
-import java.lang.StringBuilder
 import kotlin.math.max
-import java.util.Stack
 
 // Урок 7: работа с файлами
 // Урок интегральный, поэтому его задачи имеют сильно увеличенную стоимость
@@ -119,16 +117,16 @@ fun countSubstrings(inputName: String, substrings: List<String>): Map<String, In
  */
 fun sibilants(inputName: String, outputName: String) {
     val writer = File(outputName).bufferedWriter()
-    val map = mapOf(
-        "Я" to "А", "Ы" to "И", "Ю" to "У", "я" to "а", "ы" to "и", "ю" to "у"
-    )
-    val list = listOf('Ж', 'Ч', 'Ш', 'Щ', 'ж', 'ч', 'ш', 'щ')
+    val map = mapOf("Я" to "А", "Ы" to "И", "Ю" to "У")
+    val set = setOf('Ж', 'Ч', 'Ш', 'Щ')
     for (line in File(inputName).readLines()) {
         writer.write(line[0].toString())
         for (i in 1 until line.length) {
             val index = line[i].toString()
-            if (line[i - 1] in list && map[index] != null)
-                writer.write(map[index])
+            val upperIndex = index.toUpperCase()
+            if (line[i - 1].toUpperCase() in set && map[upperIndex] != null)
+                if (line[i].isUpperCase()) writer.write(map[upperIndex]) else
+                    writer.write(map[upperIndex]?.toLowerCase())
             else writer.write(index)
         }
         writer.newLine()
@@ -370,9 +368,12 @@ Suspendisse <s>et elit in enim tempus iaculis</s>.
  */
 fun markdownToHtmlSimple(inputName: String, outputName: String) {
     val writer = File(outputName).bufferedWriter()
-    writer.write("<html>" + "\n")
-    writer.write("<body>" + "\n")
-    writer.write("<p>" + "\n")
+    writer.write("<html>")
+    writer.newLine()
+    writer.write("<body>")
+    writer.newLine()
+    writer.write("<p>")
+    writer.newLine()
     val stack = mutableListOf(-1, 0) // 0 в листе, т.к. <p> уже записано в выходной файл
     //-1 - для проверки stack.last == smthng, иначе ошибка ListEmpty
     /*
@@ -431,9 +432,12 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
         writer.newLine()
         i = 0
     }
-    writer.write("</p>" + "\n")
-    writer.write("</body>" + "\n")
-    writer.write("</html>" + "\n")
+    writer.write("</p>")
+    writer.newLine()
+    writer.write("</body>")
+    writer.newLine()
+    writer.write("</html>")
+    writer.newLine()
     writer.close()
 }
 
