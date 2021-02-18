@@ -2,6 +2,8 @@
 
 package lesson11.task1
 
+import lesson1.task1.sqr
+
 /**
  * Класс "комплексное число".
  *
@@ -11,50 +13,75 @@ package lesson11.task1
  *
  * Аргументы конструктора -- вещественная и мнимая часть числа.
  */
-class Complex(val re: Double, val im: Double) {
+fun parse(s: String): Pair<Double, Double> {
+    val list = mutableListOf<Double>()
+    val result = Regex("""[+-]?\d+[.]*[\d]*""").findAll(s.replace(" ", ""))
+    for (element in result) {
+        list.add(element.value.toDouble())
+    }
+    return if (list.size == 1) {
+        if (s.contains("i")) Pair(0.0, list[0])
+        else Pair(list[0], 0.0)
+    } else Pair(list[0], list[1])
+}
+
+class Complex(val re: Double = 0.0, val im: Double = 0.0) {
 
     /**
      * Конструктор из вещественного числа
      */
-    constructor(x: Double) : this(TODO(), TODO())
+    constructor(x: Double) : this(x, 0.0)
 
     /**
      * Конструктор из строки вида x+yi
      */
-    constructor(s: String) : this(TODO(), TODO())
+    constructor(s: String) : this(parse(s).first, parse(s).second)
+
 
     /**
      * Сложение.
      */
-    operator fun plus(other: Complex): Complex = TODO()
+    operator fun plus(other: Complex): Complex = Complex(other.re + re, im + other.im)
 
     /**
      * Смена знака (у обеих частей числа)
      */
-    operator fun unaryMinus(): Complex = TODO()
+    operator fun unaryMinus(): Complex = Complex(-re, -im)
 
     /**
      * Вычитание
      */
-    operator fun minus(other: Complex): Complex = TODO()
+    operator fun minus(other: Complex): Complex = this.plus(other.unaryMinus())
 
     /**
      * Умножение
      */
-    operator fun times(other: Complex): Complex = TODO()
+    operator fun times(other: Complex): Complex = Complex(re * other.re - im * other.im, im * other.re + re * other.im)
 
     /**
      * Деление
      */
-    operator fun div(other: Complex): Complex = TODO()
+    operator fun div(other: Complex): Complex =
+        Complex(
+            (re * other.re + im * other.im) / (sqr(other.re) + sqr(other.im)),
+            (im * other.re - re * other.im) / (sqr(other.re) + sqr(other.im))
+        )
 
     /**
      * Сравнение на равенство
      */
-    override fun equals(other: Any?): Boolean = TODO()
+    override fun equals(other: Any?): Boolean =
+        other is Complex && other.re == re && other.im == im
 
     /**
      * Преобразование в строку
      */
-    override fun toString(): String = TODO()
+    override fun toString(): String = if (im >= 0) "Complex($re+${im}i)"
+    else "Complex($re${im}i)"
+
+    override fun hashCode(): Int {
+        var result = re.hashCode()
+        result = 31 * result + im.hashCode()
+        return result
+    }
 }
