@@ -3,6 +3,7 @@
 package lesson11.task1
 
 import lesson1.task1.sqr
+import java.lang.IllegalArgumentException
 
 /**
  * Класс "комплексное число".
@@ -14,10 +15,14 @@ import lesson1.task1.sqr
  * Аргументы конструктора -- вещественная и мнимая часть числа.
  */
 fun parse(s: String): Pair<Double, Double> {
+    val myString = s.replace(" ", "")
+    if (myString.contains(Regex("""^.|[^0123456789.i+-]"""))) throw IllegalArgumentException()
     val list = mutableListOf<Double>()
-    val result = Regex("""[+-]?\d+[.]*[\d]*""").findAll(s.replace(" ", ""))
+    val result = Regex("""[-+]?[\d]*\.?[\d]+""").find(myString)!!.groupValues
+    if (result.size > 2) throw IllegalArgumentException()
     for (element in result) {
-        list.add(element.value.toDouble())
+        if (element.startsWith(".")) throw IllegalArgumentException()
+        list.add(element.toDouble())
     }
     return if (list.size == 1) {
         if (s.contains("i")) Pair(0.0, list[0])
@@ -51,7 +56,7 @@ class Complex(val re: Double = 0.0, val im: Double = 0.0) {
     /**
      * Вычитание
      */
-    operator fun minus(other: Complex): Complex = this.plus(other.unaryMinus())
+    operator fun minus(other: Complex): Complex = Complex(re - other.re, im - other.im)
 
     /**
      * Умножение
@@ -71,7 +76,7 @@ class Complex(val re: Double = 0.0, val im: Double = 0.0) {
      * Сравнение на равенство
      */
     override fun equals(other: Any?): Boolean =
-        other is Complex && other.re == re && other.im == im
+        this === other || other is Complex && other.re == re && other.im == im
 
     /**
      * Преобразование в строку

@@ -19,33 +19,36 @@ package lesson11.task1
  */
 class DimensionalValue(value: Double, dimension: String) : Comparable<DimensionalValue> {
 
-    private val dimensionString = dimension
-    private val firstValue = value
-    private val prefix = dimensionString.first().toString()
-    private val dimensionValues = Dimension.values()
-    private val prefixValues = DimensionPrefix.values()
+    //private val dimensionString = dimension
+    //private val firstValue = value
+    //private val prefix = dimensionString.first().toString()
+    //private val dimensionValues = Dimension.values()
+    //private val prefixValues = DimensionPrefix.values()
 
     /**
      * Величина с БАЗОВОЙ размерностью (например для 1.0Kg следует вернуть результат в граммах -- 1000.0)
      */
-    val value: Double
-        get() {
-            return when {
-                dimensionValues.find { it.abbreviation == dimensionString } != null -> firstValue
-                (dimensionValues.find { it.abbreviation == dimensionString.removePrefix(prefix) } != null) &&
-                        (prefixValues.find { it.abbreviation == prefix } != null) &&
-                        (dimensionValues.find { it.abbreviation == dimensionString } == null) ->
-                    firstValue * prefixValues.find { it.abbreviation == prefix }!!.multiplier
-                else -> throw IllegalArgumentException()
-            }
+    val value: Double = run {
+        val prefix = dimension.first().toString()
+        val dimensionValues = Dimension.values()
+        val prefixValues = DimensionPrefix.values()
+        when {
+            dimensionValues.find { it.abbreviation == dimension } != null -> value
+            (dimensionValues.find { it.abbreviation == dimension.removePrefix(prefix) } != null) &&
+                    (prefixValues.find { it.abbreviation == prefix } != null) &&
+                    (dimensionValues.find { it.abbreviation == dimension } == null) ->
+                value * prefixValues.find { it.abbreviation == prefix }!!.multiplier
+            else -> throw IllegalArgumentException()
         }
+    }
 
     /**
      * БАЗОВАЯ размерность (опять-таки для 1.0Kg следует вернуть GRAM)
      */
     val dimension: Dimension = run {
-        val a = dimensionValues.find { it.abbreviation == dimensionString }
-        val b = dimensionValues.find { it.abbreviation == dimensionString.removePrefix(prefix) }
+        val dimensionValues = Dimension.values()
+        val a = dimensionValues.find { it.abbreviation == dimension }
+        val b = dimensionValues.find { it.abbreviation == dimension.removePrefix(dimension.first().toString()) }
         a ?: (b ?: throw java.lang.IllegalArgumentException())
     }
 
@@ -66,7 +69,7 @@ class DimensionalValue(value: Double, dimension: String) : Comparable<Dimensiona
     /**
      * Смена знака величины
      */
-    operator fun unaryMinus(): DimensionalValue = DimensionalValue(-firstValue, dimension.abbreviation)
+    operator fun unaryMinus(): DimensionalValue = DimensionalValue(-value, dimension.abbreviation)
 
     /**
      * Вычитание другой величины. Если базовая размерность разная, бросить IllegalArgumentException
@@ -98,18 +101,14 @@ class DimensionalValue(value: Double, dimension: String) : Comparable<Dimensiona
      * Сравнение на равенство
      */
     override fun equals(other: Any?): Boolean =
-        other is DimensionalValue && (value == other.value) && (dimension == other.dimension)
+        this === other || other is DimensionalValue && (value == other.value) && (dimension == other.dimension)
 
     /**
      * Сравнение на больше/меньше. Если базовая размерность разная, бросить IllegalArgumentException
      */
     override fun compareTo(other: DimensionalValue): Int {
         if (dimension == other.dimension)
-            return when {
-                value < other.value -> -1
-                value > other.value -> 1
-                else -> 0
-            }
+            return value.compareTo(other.value)
         else
             throw IllegalArgumentException()
     }
