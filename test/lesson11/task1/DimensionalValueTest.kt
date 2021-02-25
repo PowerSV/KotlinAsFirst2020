@@ -30,13 +30,12 @@ internal class DimensionalValueTest {
         val seventh = DimensionalValue("1000000000 ng")
         assertEquals(1.0, seventh.value)
         assertEquals(Dimension.GRAM, seventh.dimension)
-        /*val eighth = DimensionalValue(1.0, "Kkg")
-        assertEquals(1.0, eighth.value)
-        assertEquals(Dimension.GRAM, eighth.dimension)
-        */
+
+
         assertThrows(IllegalArgumentException::class.java) {
             DimensionalValue(1.0, "Kkg")
         }
+
         assertThrows(IllegalArgumentException::class.java) {
             DimensionalValue("200 2 m")
         }

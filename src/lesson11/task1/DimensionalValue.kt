@@ -28,28 +28,50 @@ class DimensionalValue(value: Double, dimension: String) : Comparable<Dimensiona
     /**
      * Величина с БАЗОВОЙ размерностью (например для 1.0Kg следует вернуть результат в граммах -- 1000.0)
      */
-    val value: Double = run {
+    val value: Double
+    /*= run {
         val prefix = dimension.first().toString()
         val dimensionValues = Dimension.values()
         val prefixValues = DimensionPrefix.values()
         when {
             dimensionValues.find { it.abbreviation == dimension } != null -> value
-            (dimensionValues.find { it.abbreviation == dimension.removePrefix(prefix) } != null) &&
+            (dimensionValues.find { dimension.endsWith(it.abbreviation) } != null) &&
                     (prefixValues.find { it.abbreviation == prefix } != null) &&
                     (dimensionValues.find { it.abbreviation == dimension } == null) ->
                 value * prefixValues.find { it.abbreviation == prefix }!!.multiplier
             else -> throw IllegalArgumentException()
         }
-    }
+    }*/
+
 
     /**
      * БАЗОВАЯ размерность (опять-таки для 1.0Kg следует вернуть GRAM)
      */
-    val dimension: Dimension = run {
+    val dimension: Dimension  /*= run {
         val dimensionValues = Dimension.values()
         val a = dimensionValues.find { it.abbreviation == dimension }
         val b = dimensionValues.find { it.abbreviation == dimension.removePrefix(dimension.first().toString()) }
         a ?: (b ?: throw java.lang.IllegalArgumentException())
+    }*/
+
+    init {
+        val dimensionValues = Dimension.values()
+        val prefixValues = DimensionPrefix.values()
+        val suffix = dimensionValues.find { dimension.endsWith(it.abbreviation) }
+            ?: throw java.lang.IllegalArgumentException()
+        val myStringWithoutSuffix = dimension.removeSuffix(suffix.abbreviation)
+        val prefix = prefixValues.find { myStringWithoutSuffix.startsWith(it.abbreviation) }
+
+        if (prefix == null) {
+            if (myStringWithoutSuffix.isNotEmpty()) throw java.lang.IllegalArgumentException()
+            else this.value = value
+        } else {
+            if (myStringWithoutSuffix.removePrefix(prefix.abbreviation)
+                    .isNotEmpty()
+            ) throw java.lang.IllegalArgumentException()
+            else this.value = value * prefix.multiplier
+        }
+        this.dimension = suffix
     }
 
     /**

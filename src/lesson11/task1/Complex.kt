@@ -16,18 +16,12 @@ import java.lang.IllegalArgumentException
  */
 fun parse(s: String): Pair<Double, Double> {
     val myString = s.replace(" ", "")
-    if (myString.contains(Regex("""^.|[^0123456789.i+-]"""))) throw IllegalArgumentException()
-    val list = mutableListOf<Double>()
-    val result = Regex("""[-+]?[\d]*\.?[\d]+""").find(myString)!!.groupValues
-    if (result.size > 2) throw IllegalArgumentException()
-    for (element in result) {
-        if (element.startsWith(".")) throw IllegalArgumentException()
-        list.add(element.toDouble())
-    }
-    return if (list.size == 1) {
-        if (s.contains("i")) Pair(0.0, list[0])
-        else Pair(list[0], 0.0)
-    } else Pair(list[0], list[1])
+    if (myString.isEmpty()) throw  IllegalArgumentException()
+    val result = Regex("""(-?\d+(?:\.\d+)?)?(?:([+-]\d+(?:\.\d+)?)i)?""").matchEntire(myString)
+        ?: throw IllegalArgumentException()
+    val re = result.groupValues[1].toDoubleOrNull() ?: 0.0
+    val im = result.groupValues[2].toDoubleOrNull() ?: 0.0
+    return re to im
 }
 
 class Complex(val re: Double = 0.0, val im: Double = 0.0) {
