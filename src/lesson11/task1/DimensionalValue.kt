@@ -60,16 +60,12 @@ class DimensionalValue(value: Double, dimension: String) : Comparable<Dimensiona
         val suffix = dimensionValues.find { dimension.endsWith(it.abbreviation) }
             ?: throw java.lang.IllegalArgumentException()
         val myStringWithoutSuffix = dimension.removeSuffix(suffix.abbreviation)
-        val prefix = prefixValues.find { myStringWithoutSuffix.startsWith(it.abbreviation) }
 
-        if (prefix == null) {
-            if (myStringWithoutSuffix.isNotEmpty()) throw java.lang.IllegalArgumentException()
-            else this.value = value
-        } else {
-            if (myStringWithoutSuffix.removePrefix(prefix.abbreviation)
-                    .isNotEmpty()
-            ) throw java.lang.IllegalArgumentException()
-            else this.value = value * prefix.multiplier
+        if (myStringWithoutSuffix.isEmpty()) this.value = value
+        else {
+            val prefix = prefixValues.find { it.abbreviation == myStringWithoutSuffix }
+            if (prefix == null) throw java.lang.IllegalArgumentException() else this.value = value * prefix.multiplier
+
         }
         this.dimension = suffix
     }
